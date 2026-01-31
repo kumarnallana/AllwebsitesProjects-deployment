@@ -1,6 +1,3 @@
-// ===== RESTAURANT MENU JAVASCRIPT =====
-// Modern ES6+ Dark mode toggle, form interactions, and mobile navigation
-
 class RestaurantMenuManager {
   constructor() {
     this.notifications = new Set();
@@ -75,54 +72,38 @@ class RestaurantMenuManager {
         }
       });
   }
-
-  // ===== MOBILE NAVIGATION =====
   async setupMobileNavigation() {
     const mobileMenuBtn = document.getElementById("mobileMenuBtn");
     const mobileMenu = document.getElementById("mobileMenu");
 
     if (!mobileMenuBtn || !mobileMenu) return;
 
-    // Enhanced mobile menu toggle with better animations
     mobileMenuBtn.addEventListener("click", () => {
-      const isMenuVisible = mobileMenu.classList.contains("show");
+      const isOpen = mobileMenu.classList.contains("show");
 
-      mobileMenu.style.transition = "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
-
-      if (!isMenuVisible) {
-        mobileMenu.classList.remove("hidden");
+      if (isOpen) {
+        this.closeMobileMenu(mobileMenu, mobileMenuBtn);
+      } else {
         mobileMenu.classList.add("show");
         mobileMenuBtn.textContent = "✕";
-        mobileMenuBtn.setAttribute("aria-label", "Close menu");
         mobileMenuBtn.setAttribute("aria-expanded", "true");
-        document.body.style.overflow = "hidden"; // Prevent scrolling
-      } else {
-        mobileMenu.classList.add("hidden");
-        mobileMenu.classList.remove("show");
-        mobileMenuBtn.textContent = "☰";
-        mobileMenuBtn.setAttribute("aria-label", "Open menu");
-        mobileMenuBtn.setAttribute("aria-expanded", "false");
-        document.body.style.overflow = "";
+        document.body.style.overflow = "hidden";
       }
     });
 
-    // Close mobile menu when clicking on links
-    const mobileMenuLinks = mobileMenu.querySelectorAll("a");
-    mobileMenuLinks.forEach((link) => {
-      link.addEventListener("click", () =>
-        this.closeMobileMenu(mobileMenu, mobileMenuBtn)
-      );
+    // Close on link click
+    mobileMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        this.closeMobileMenu(mobileMenu, mobileMenuBtn);
+      });
     });
 
-    // Close mobile menu when clicking outside
-    document.addEventListener("click", (event) => {
-      const isClickInsideMenu = mobileMenu.contains(event.target);
-      const isClickOnButton = mobileMenuBtn.contains(event.target);
-
+    // Close on outside click
+    document.addEventListener("click", (e) => {
       if (
-        !isClickInsideMenu &&
-        !isClickOnButton &&
-        mobileMenu.classList.contains("show")
+        mobileMenu.classList.contains("show") &&
+        !mobileMenu.contains(e.target) &&
+        !mobileMenuBtn.contains(e.target)
       ) {
         this.closeMobileMenu(mobileMenu, mobileMenuBtn);
       }
@@ -130,7 +111,6 @@ class RestaurantMenuManager {
   }
 
   closeMobileMenu = (mobileMenu, mobileMenuBtn) => {
-    mobileMenu.classList.add("hidden");
     mobileMenu.classList.remove("show");
     mobileMenuBtn.textContent = "☰";
     mobileMenuBtn.setAttribute("aria-label", "Open menu");
@@ -146,7 +126,7 @@ class RestaurantMenuManager {
     const passwordStrengthContainer = this.createPasswordStrengthChecker();
     passwordInput.parentNode.insertBefore(
       passwordStrengthContainer,
-      passwordInput.nextSibling
+      passwordInput.nextSibling,
     );
 
     // Enhanced password validation with debouncing
@@ -156,7 +136,7 @@ class RestaurantMenuManager {
       validationTimeout = setTimeout(() => {
         this.validatePasswordStrength(
           e.target.value,
-          passwordStrengthContainer
+          passwordStrengthContainer,
         );
       }, 300);
     });
@@ -243,7 +223,6 @@ class RestaurantMenuManager {
       <div class="password-rule" data-rule="special">○ ${this.passwordStrengthConfig.requirements.special.message}</div>
       <div class="password-rule" data-rule="complexity">○ ${this.passwordStrengthConfig.requirements.complexity.message}</div>
     `;
-
     // Password suggestions
     const suggestions = document.createElement("div");
     suggestions.className = "password-suggestions";
@@ -279,7 +258,7 @@ class RestaurantMenuManager {
     // Length check with progressive scoring
     const lengthScore = Math.min(
       (password.length / 12) * requirements.length.weight,
-      requirements.length.weight
+      requirements.length.weight,
     );
     results.length = password.length >= 8;
     totalScore += lengthScore;
@@ -318,7 +297,7 @@ class RestaurantMenuManager {
     const hasRepeats = /(.)\1{2,}/.test(password);
     const hasSequential =
       /(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|012|123|234|345|456|567|678|789)/i.test(
-        password
+        password,
       );
 
     // Penalty for common patterns
@@ -387,7 +366,7 @@ class RestaurantMenuManager {
     strengthBar.style.background = bgColor;
     strengthText.style.color = textColor;
     strengthText.textContent = `Password Strength: ${strength} (${Math.round(
-      percentage
+      percentage,
     )}%)`;
 
     // Update rule indicators with smooth animations
@@ -444,7 +423,7 @@ class RestaurantMenuManager {
   // ===== ENHANCED FAVOURITE FOOD DROPDOWN =====
   async setupFavoriteFoodDropdown() {
     const preferenceForms = document.querySelectorAll(
-      'form[action="/action_page.php"]'
+      'form[action="/action_page.php"]',
     );
 
     const foodOptions = [
@@ -503,6 +482,16 @@ class RestaurantMenuManager {
       width: 100%;
     `;
 
+    document.addEventListener("DOMContentLoaded", () => {
+      const wrappers = document.querySelectorAll(".table-wrapper");
+
+      wrappers.forEach((wrapper) => {
+        if (wrapper.scrollWidth > wrapper.clientWidth) {
+          wrapper.classList.add("is-scrollable");
+        }
+      });
+    });
+
     const select = document.createElement("select");
     select.id = "favFood";
     select.name = "favFood";
@@ -547,7 +536,7 @@ class RestaurantMenuManager {
     select.addEventListener("change", (e) => {
       if (e.target.value) {
         const selectedOption = options.find(
-          (opt) => opt.value === e.target.value
+          (opt) => opt.value === e.target.value,
         );
         const message = `Great choice! ${selectedOption.emoji} ${selectedOption.text}`;
         this.showSubtleNotification(message, "success");
@@ -603,7 +592,7 @@ class RestaurantMenuManager {
       setTimeout(() => {
         this.showNotification(
           "Redirecting to your personalized menu... 🍽️",
-          "info"
+          "info",
         );
       }, 1500);
     });
@@ -663,7 +652,7 @@ class RestaurantMenuManager {
         // Enhanced checkbox interactions
         checkbox.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
         checkbox.addEventListener("change", (e) =>
-          this.handleCheckboxChange(e, form)
+          this.handleCheckboxChange(e, form),
         );
       });
 
@@ -694,7 +683,7 @@ class RestaurantMenuManager {
     e.preventDefault();
 
     const checkedBoxes = form.querySelectorAll(
-      'input[type="checkbox"]:checked'
+      'input[type="checkbox"]:checked',
     );
     const selectedItems = Array.from(checkedBoxes).map((cb) => {
       const label = form.querySelector(`label[for="${cb.id}"]`);
@@ -704,7 +693,7 @@ class RestaurantMenuManager {
     if (selectedItems.length === 0) {
       this.showAlert(
         "Please select at least one item before submitting! 🍗",
-        "error"
+        "error",
       );
       return;
     }
@@ -737,14 +726,14 @@ ${selectedItems.map((item) => `• ${item}`).join("\n")}
   async setupReviewForm() {
     const reviewTextarea = document.querySelector('textarea[name="review"]');
     const reviewSubmitBtn = document.querySelector(
-      'input[value="your love submit here"]'
+      'input[value="your love submit here"]',
     );
 
     if (reviewTextarea) {
       const feedbackDiv = this.createReviewFeedback();
       reviewTextarea.parentNode.insertBefore(
         feedbackDiv,
-        reviewTextarea.nextSibling
+        reviewTextarea.nextSibling,
       );
 
       let feedbackTimeout;
@@ -759,7 +748,7 @@ ${selectedItems.map((item) => `• ${item}`).join("\n")}
     }
 
     reviewSubmitBtn?.addEventListener("click", (e) =>
-      this.handleReviewSubmit(e, reviewTextarea)
+      this.handleReviewSubmit(e, reviewTextarea),
     );
   }
 
@@ -798,7 +787,7 @@ ${selectedItems.map((item) => `• ${item}`).join("\n")}
       setTimeout(() => {
         this.showSubtleNotification(
           "Great start! Keep sharing your thoughts 💭",
-          "info"
+          "info",
         );
       }, 1000);
     } else if (length > 50 && length <= 150) {
@@ -836,7 +825,7 @@ ${selectedItems.map((item) => `• ${item}`).join("\n")}
     if (reviewText.length < 10) {
       this.showAlert(
         "Please write a more detailed review (at least 10 characters) 📝",
-        "error"
+        "error",
       );
       return;
     }
@@ -862,7 +851,7 @@ ${selectedItems.map((item) => `• ${item}`).join("\n")}
         }
         this.showNotification(
           "Review submitted! We truly appreciate your feedback! 💝",
-          "success"
+          "success",
         );
       }, 2000);
     }
@@ -870,7 +859,7 @@ ${selectedItems.map((item) => `• ${item}`).join("\n")}
 
   async setupPreferenceForms() {
     const preferenceSubmits = document.querySelectorAll(
-      'form[action="/action_page.php"] input[type="submit"]'
+      'form[action="/action_page.php"] input[type="submit"]',
     );
 
     preferenceSubmits.forEach((submit) => {
@@ -887,7 +876,7 @@ ${selectedItems.map((item) => `• ${item}`).join("\n")}
 
     selects.forEach((select) => {
       const label = form.querySelector(
-        `label[for="${select.id}"], label[for="${select.name}"]`
+        `label[for="${select.id}"], label[for="${select.name}"]`,
       );
       const labelText = label
         ? label.textContent.replace(":", "").trim()
@@ -964,7 +953,7 @@ ${prefText}
     }, observerOptions);
 
     const sections = document.querySelectorAll(
-      'div[class*="container"], .chicken'
+      'div[class*="container"], .chicken',
     );
     sections.forEach((section) => {
       observer.observe(section);
@@ -1314,7 +1303,7 @@ ${prefText}
 
     // Add focus indicators for better keyboard navigation
     const focusableElements = document.querySelectorAll(
-      'input, button, select, textarea, a[href], [tabindex]:not([tabindex="-1"])'
+      'input, button, select, textarea, a[href], [tabindex]:not([tabindex="-1"])',
     );
 
     focusableElements.forEach((element) => {
@@ -1332,7 +1321,7 @@ ${prefText}
   // ===== FORM ENHANCEMENTS =====
   async setupFormEnhancements() {
     const submitButtons = document.querySelectorAll(
-      'input[type="submit"], .submit-btn, .final-submit'
+      'input[type="submit"], .submit-btn, .final-submit',
     );
 
     submitButtons.forEach((btn) => {
@@ -1371,7 +1360,7 @@ ${prefText}
 // ===== ENHANCED GLOBAL FUNCTIONS =====
 async function showThankYouMessage() {
   const fishCheckboxes = document.querySelectorAll(
-    'input[name="maincoursefish"]:checked'
+    'input[name="maincoursefish"]:checked',
   );
 
   if (fishCheckboxes.length === 0) {
@@ -1498,6 +1487,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log("🚀 Enhanced Restaurant Menu JavaScript loaded successfully!");
   console.log(
-    "✨ Features: ES6+, Advanced Animations, Enhanced UX, Modern Design"
+    "✨ Features: ES6+, Advanced Animations, Enhanced UX, Modern Design",
   );
 });
